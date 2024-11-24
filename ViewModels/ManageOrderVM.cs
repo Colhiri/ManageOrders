@@ -1,6 +1,7 @@
 ﻿using ManageOrders.Models;
 using ManageOrders.Utility;
 using ManageOrders.View;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -46,10 +47,12 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void LoadOrders()
         {
+            Orders.Clear();
             foreach (OrderModel order in ServiceDB.GetOrders())
             {
                 Orders.Add(order);
             }
+            OnPropertyChanged();
         }
 
         /// <summary>
@@ -57,15 +60,24 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void CreateOrder()
         {
-            CreateNewOrderVM viewModel = new CreateNewOrderVM();
-            viewModel.NewOrder = new OrderModel();
+            CreateNewOrderVM viewModel = new CreateNewOrderVM(new OrderModel() 
+            { 
+                IdOrder = Guid.NewGuid().ToString(),
+                Status = "Новая" 
+            });
             if (!viewModel.CheckRun())
             {
                 return;
             }
             WorkOrderView view = new WorkOrderView();
+            viewModel.ClosingWindow += view.Close;
             view.DataContext = viewModel;
-            view.Show();
+            view.ShowDialog();
+            if (viewModel.ActionComplete)
+            {
+                Orders.Add(viewModel.NewOrder);
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -81,16 +93,22 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void ExecuteOrder()
         {
-            ExecuteOrderVM viewModel = new ExecuteOrderVM();
-            viewModel.NewOrder = SelectedOrder;
+            ExecuteOrderVM viewModel = new ExecuteOrderVM((OrderModel)SelectedOrder?.Clone());
             if (!viewModel.CheckRun())
             {
                 MessageBox.Show("Выберите заявку со статусом <Новая>!");
                 return;
             }
             WorkOrderView view = new WorkOrderView();
+            viewModel.ClosingWindow += view.Close;
             view.DataContext = viewModel;
-            view.Show();
+            view.ShowDialog();
+
+            if (viewModel.ActionComplete)
+            {
+                Orders[Orders.IndexOf(SelectedOrder)] = viewModel.NewOrder;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -98,16 +116,22 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void EditOrder()
         {
-            EditOrderVM viewModel = new EditOrderVM();
-            viewModel.NewOrder = SelectedOrder;
+            BaseOrderVM viewModel = new EditOrderVM((OrderModel)SelectedOrder?.Clone());
             if (!viewModel.CheckRun())
             {
                 MessageBox.Show("Выберите заявку!");
                 return;
             }
             WorkOrderView view = new WorkOrderView();
+            viewModel.ClosingWindow += view.Close;
             view.DataContext = viewModel;
-            view.Show();
+            view.ShowDialog();
+
+            if (viewModel.ActionComplete)
+            {
+                Orders[Orders.IndexOf(SelectedOrder)] = viewModel.NewOrder;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -130,6 +154,12 @@ namespace ManageOrders.ViewModels
             if (result == MessageBoxResult.Yes)
             {
                 ServiceDB.DeleteOrder(SelectedOrder.IdOrder);
+
+                Orders.Remove(SelectedOrder);
+
+                SelectedOrder = null;
+
+                OnPropertyChanged();
             }
         }
     }

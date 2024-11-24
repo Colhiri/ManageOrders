@@ -1,5 +1,6 @@
 ﻿using ManageOrders.Models;
 using Microsoft.Data.Sqlite;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -44,7 +45,7 @@ namespace ManageOrders.Utility
                 {
                     orders.Add(new OrderModel
                     {
-                        IdOrder = reader.GetInt32(0),
+                        IdOrder = reader.GetString(0),
                         NameClient = reader.GetString(1),
                         NameExecutor = reader.GetString(2),
                         PickupAddress = reader.GetString(3),
@@ -67,7 +68,8 @@ namespace ManageOrders.Utility
                 connection.Open();
 
                 string request = @"INSERT INTO Orders
-                                    (name_client
+                                    (id_order
+                                    ,name_client
                                     ,name_executor
                                     ,pickup_address
                                     ,delivery_address
@@ -76,25 +78,27 @@ namespace ManageOrders.Utility
                                     ,cancel_reason)
                                     VALUES
                                     (
-                                    @name_client,
-                                    ,@name_executor,
-                                    ,@pickup_address,
-                                    ,@delivery_address,
-                                    ,@pickup_time,
-                                    ,@status,
+                                    @id_order
+                                    ,@name_client
+                                    ,@name_executor
+                                    ,@pickup_address
+                                    ,@delivery_address
+                                    ,@pickup_time
+                                    ,@status
                                     ,@cancel_reason)
                                     ";
                 using (var command = new SqliteCommand(request, connection))
                 {
                     command.Parameters.Clear();
                     
+                    command.Parameters.AddWithValue("@id_order", order.IdOrder);
                     command.Parameters.AddWithValue("@name_client", order.NameClient);
                     command.Parameters.AddWithValue("@name_executor", order.NameExecutor);
                     command.Parameters.AddWithValue("@pickup_address", order.PickupAddress);
                     command.Parameters.AddWithValue("@delivery_address", order.DeliveryAddress);
                     command.Parameters.AddWithValue("@pickup_time", order.PickupTime);
                     command.Parameters.AddWithValue("@status", order.Status);
-                    command.Parameters.AddWithValue("@cancel_reason", order.CancelReason);
+                    command.Parameters.AddWithValue("@cancel_reason", order.CancelReason == null ? DBNull.Value : order.CancelReason);
 
                     command.ExecuteNonQuery();
                 };
@@ -111,14 +115,15 @@ namespace ManageOrders.Utility
 
                 string request = @"UPDATE Orders
                                     SET 
-                                    name_client = @name_client,
-                                    name_executor = @name_executor,
-                                    pickup_address = @pickup_address,
-                                    delivery_address = @delivery_address,
-                                    pickup_time = @pickup_time,
-                                    status = @status,
-                                    cancel_reason = @cancel_reason,
-                                    WHERE id_order = @id_order
+                                    name_client = @name_client
+                                    , name_executor = @name_executor
+                                    , pickup_address = @pickup_address
+                                    , delivery_address = @delivery_address
+                                    , pickup_time = @pickup_time
+                                    , status = @status
+                                    , cancel_reason = @cancel_reason
+                                    WHERE 
+                                    id_order = @id_order
                                     ";
                 using (var command = new SqliteCommand(request, connection))
                 {
@@ -130,7 +135,7 @@ namespace ManageOrders.Utility
                     command.Parameters.AddWithValue("@delivery_address", order.DeliveryAddress);
                     command.Parameters.AddWithValue("@pickup_time", order.PickupTime);
                     command.Parameters.AddWithValue("@status", order.Status);
-                    command.Parameters.AddWithValue("@cancel_reason", order.CancelReason);
+                    command.Parameters.AddWithValue("@cancel_reason", order.CancelReason == null ? DBNull.Value : order.CancelReason);
                     command.Parameters.AddWithValue("@id_order", order.IdOrder);
 
                     command.ExecuteNonQuery();
@@ -141,7 +146,7 @@ namespace ManageOrders.Utility
             return order;
         }
 
-        public void DeleteOrder(int idOrder)
+        public void DeleteOrder(string idOrder)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {

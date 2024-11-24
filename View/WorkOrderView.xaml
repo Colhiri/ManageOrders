@@ -3,9 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:System;assembly=mscorlib"
         xmlns:viewmodels="clr-namespace:ManageOrders.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:BaseOrderVM}"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="{Binding Title}" Height="450" Width="800">
+
     <Grid Margin="10">
         <Grid Margin="10,50,10,50">
             <Grid.RowDefinitions>
@@ -23,32 +26,32 @@
             </Grid.ColumnDefinitions>
 
             <!-- Имя клиента -->
-            <TextBlock Text="Имя клиента" Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" Visibility="{Binding visibleNameClient}" />
-            <TextBox Grid.Row="0" Grid.Column="1" Margin="5" Text="{Binding NewOrder.NameClient}" IsEnabled="{Binding enabledNameClient}" Visibility="{Binding visibleNameClient}" />
+            <TextBlock Text="Имя клиента" Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="5" Text="{Binding NewOrder.NameClient}" IsEnabled="{Binding enabledNameClient}" />
 
             <!-- Имя исполнителя -->
-            <TextBlock Text="Имя исполнителя" Grid.Row="1" Grid.Column="0" Margin="5" VerticalAlignment="Center" Visibility="{Binding visibleNameExecutor}" />
-            <TextBox Grid.Row="1" Grid.Column="1" Margin="5" Text="{Binding NewOrder.NameExecutor}" IsEnabled="{Binding enabledNameExecutor}" Visibility="{Binding visibleNameExecutor}" />
+            <TextBlock Text="Имя исполнителя" Grid.Row="1" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="5" Text="{Binding NewOrder.NameExecutor}" IsEnabled="{Binding enabledNameExecutor}" />
 
             <!-- Адрес клиента -->
-            <TextBlock Text="Адрес клиента" Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" Visibility="{Binding visiblePickupAddress}" />
-            <TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding NewOrder.PickupAddress}" IsEnabled="{Binding enabledPickupAddress}" Visibility="{Binding visiblePickupAddress}" />
+            <TextBlock Text="Адрес клиента" Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
+            <TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding NewOrder.PickupAddress}" IsEnabled="{Binding enabledPickupAddress}" />
 
             <!-- Адрес доставки -->
-            <TextBlock Text="Адрес доставки" Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" Visibility="{Binding visibleDeliveryAddress}" />
-            <TextBox Grid.Row="3" Grid.Column="1" Margin="5" Text="{Binding NewOrder.DeliveryAddress}" IsEnabled="{Binding enabledDeliveryAddress}" Visibility="{Binding visibleDeliveryAddress}" />
+            <TextBlock Text="Адрес доставки" Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
+            <TextBox Grid.Row="3" Grid.Column="1" Margin="5" Text="{Binding NewOrder.DeliveryAddress}" IsEnabled="{Binding enabledDeliveryAddress}" />
 
             <!-- Время передачи посылки -->
-            <TextBlock Text="Время передачи посылки" Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center" Visibility="{Binding visiblePickupTime}" />
-            <TextBox Grid.Row="4" Grid.Column="1" Margin="5" Text="{Binding NewOrder.PickupTime}" IsEnabled="{Binding enabledPickupTime}" Visibility="{Binding visiblePickupTime}" />
-
+            <TextBlock Text="Время передачи посылки" Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center"  />
+            <xctk:DateTimePicker  Grid.Row="4" Grid.Column="1" Margin="5" Value="{Binding NewOrder.PickupTime}" Format="Custom" FormatString="dd.MM.yyyy HH:mm"  IsEnabled="{Binding enabledPickupTime}" />
+            
             <!-- Статус -->
-            <TextBlock Text="Статус" Grid.Row="5" Grid.Column="0" Margin="5" VerticalAlignment="Center" Visibility="{Binding visibleStatus}" />
-            <ComboBox Grid.Row="5" Grid.Column="1" Margin="5" ItemsSource="{Binding StatusOrder}" Text="{Binding NewOrder.Status}"  IsEnabled="{Binding enabledStatus}" Visibility="{Binding visibleStatus}" />
+            <TextBlock Text="Статус" Grid.Row="5" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="5" Grid.Column="1" Margin="5" ItemsSource="{Binding StatusOrder}" SelectedItem="{Binding NewOrder.Status}" IsEnabled="{Binding enabledStatus}" />
 
             <!-- Причина отмены -->
-            <TextBlock Text="Причина отмены" Grid.Row="6" Grid.Column="0" Margin="5" VerticalAlignment="Center" Visibility="{Binding visibleCancelReason}" />
-            <TextBox Grid.Row="6" Grid.Column="1" Margin="5" Text="{Binding NewOrder.CancelReason}" IsEnabled="{Binding enabledCancelReason}" Visibility="{Binding visibleCancelReason}" />
+            <TextBlock Text="Причина отмены" Grid.Row="6" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
+            <TextBox Grid.Row="6" Grid.Column="1" Margin="5" Text="{Binding NewOrder.CancelReason}" IsEnabled="{Binding enabledCancelReason}" />
         </Grid>
 
         <!-- Кнопки -->

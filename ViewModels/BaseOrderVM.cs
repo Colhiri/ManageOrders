@@ -1,5 +1,6 @@
 ﻿using ManageOrders.Models;
 using ManageOrders.Utility;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -16,13 +17,11 @@ namespace ManageOrders.ViewModels
         public bool enabledStatus { get; set; } = true;
         public bool enabledCancelReason { get; set; }  = true;
 
-        public bool visibleNameClient { get; set; } = true;
-        public bool visibleNameExecutor { get; set; } = true;
-        public bool visiblePickupAddress { get; set; } = true;
-        public bool visibleDeliveryAddress { get; set; } = true;
-        public bool visiblePickupTime { get; set; } = true;
-        public bool visibleStatus { get; set; } = true;
-        public bool visibleCancelReason { get; set; }  = true;
+        public bool ActionComplete 
+        { 
+            get; 
+            protected set; 
+        } = false;
 
         private OrderModel _newOrder;
         public OrderModel NewOrder
@@ -38,7 +37,15 @@ namespace ManageOrders.ViewModels
         public string Title { get; set; }
         public ICommand ActionOrderCommand { get; set; }
 
-        public BaseOrderVM() 
+        public Action ClosingWindow;
+
+        public BaseOrderVM(OrderModel order)
+        {
+            NewOrder = order;
+            Initialize();
+        }
+
+        private void Initialize()
         {
             StatusOrder = new ReadOnlyObservableCollection<string>(Utility.Utility.statusOrder);
             ActionOrderCommand = new RelayCommand(ActionOrder);

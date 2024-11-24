@@ -1,22 +1,22 @@
 ﻿using ManageOrders.Utility;
-using System.Net.NetworkInformation;
 using System.Text;
-using System;
 using System.Windows;
+using ManageOrders.Models;
 
 namespace ManageOrders.ViewModels
 {
     public class CreateNewOrderVM : BaseOrderVM
     {
+        public CreateNewOrderVM(OrderModel order) : base(order)
+        {
+        }
+
         public override void SetParameters() => Title = "Создать заявку";
 
         public override void ManageControlsOrder()
         {
             enabledStatus = false;
             enabledCancelReason = false;
-
-            visibleStatus = false;
-            visibleCancelReason = false;
         }
 
         public override void ActionOrder()
@@ -29,11 +29,15 @@ namespace ManageOrders.ViewModels
             // Отослать на сервер
             ServiceDB serviceDB = new ServiceDB(Config.pathToDB);
             serviceDB.CreateOrder(NewOrder);
+
+            ActionComplete = true;
+
+            ClosingWindow?.Invoke();
         }
 
         public override bool CheckRun()
         {
-            return true;
+            return NewOrder != null;
         }
 
         protected override bool CheckRunAction(out string msg)
@@ -65,21 +69,16 @@ namespace ManageOrders.ViewModels
                 check = false;
                 sb.AppendLine("Поле <Время передачи посылки> не может быть заполнено задним числом!");
             }
-            if (!NewOrder.CheckPickupTime())
-            {
-                check = false;
-                sb.AppendLine("Поле <Время передачи посылки> не может быть заполнено задним числом!");
-            }
-            if (!NewOrder.CheckStatus())
-            {
-                check = false;
-                sb.AppendLine("Поле <Статус> содержит неизвестный статус.");
-            }
-            if (!NewOrder.CheckCancelReason())
-            {
-                check = false;
-                sb.AppendLine("");
-            }
+            // if (!NewOrder.CheckStatus())
+            // {
+            //     check = false;
+            //     sb.AppendLine("Поле <Статус> содержит неизвестный статус.");
+            // }
+            // if (!NewOrder.CheckCancelReason())
+            // {
+            //     check = false;
+            //     sb.AppendLine("");
+            // }
             msg = sb.ToString();
             return check;
         }
