@@ -4,7 +4,7 @@ namespace ManageOrders.Models
 {
     public class OrderModel : ICloneable
     {
-        private string _idOrder;
+        private int _idOrder;
         private string _nameClient;
         private string _nameExecutor;
         private string _pickupAddress;
@@ -25,10 +25,7 @@ namespace ManageOrders.Models
         public bool CheckCancelReason() => !string.IsNullOrEmpty(_cancelReason);
         #endregion
 
-        /// <summary>
-        /// Ид заказа
-        /// </summary>
-        public string IdOrder
+        public int IdOrder
         {
             get { return _idOrder; }
             set { _idOrder = value; }

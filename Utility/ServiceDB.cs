@@ -45,7 +45,7 @@ namespace ManageOrders.Utility
                 {
                     orders.Add(new OrderModel
                     {
-                        IdOrder = reader.GetString(0),
+                        IdOrder = reader.GetInt32(0),
                         NameClient = reader.GetString(1),
                         NameExecutor = reader.GetString(2),
                         PickupAddress = reader.GetString(3),
@@ -146,7 +146,7 @@ namespace ManageOrders.Utility
             return order;
         }
 
-        public void DeleteOrder(string idOrder)
+        public void DeleteOrder(int idOrder)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {

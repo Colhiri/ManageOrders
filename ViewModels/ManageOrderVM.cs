@@ -2,8 +2,12 @@
 using ManageOrders.Utility;
 using ManageOrders.View;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace ManageOrders.ViewModels
@@ -11,6 +15,7 @@ namespace ManageOrders.ViewModels
     public class ManageOrderVM : BaseVM
     {
         private ServiceDB ServiceDB;
+        private ApiService ApiService;
         public ObservableCollection<OrderModel> Orders { get; set; }
         public ICommand CreateOrderCommand { get; set; }
         public ICommand FilterOrderCommand { get; set; }
@@ -31,6 +36,7 @@ namespace ManageOrders.ViewModels
         public ManageOrderVM()
         {
             ServiceDB = new ServiceDB(Config.pathToDB);
+            ApiService = new ApiService();
 
             Orders = new ObservableCollection<OrderModel>();
             LoadOrders();
@@ -45,10 +51,13 @@ namespace ManageOrders.ViewModels
         /// <summary>
         /// Загрузить все заявки в ListView
         /// </summary>
-        private void LoadOrders()
+        private async void LoadOrders()
         {
             Orders.Clear();
-            foreach (OrderModel order in ServiceDB.GetOrders())
+
+            List<OrderModel> orders = await ApiService.GetOrders();
+
+            foreach (OrderModel order in orders)// ServiceDB.GetOrders())
             {
                 Orders.Add(order);
             }
@@ -62,7 +71,6 @@ namespace ManageOrders.ViewModels
         {
             CreateNewOrderVM viewModel = new CreateNewOrderVM(new OrderModel() 
             { 
-                IdOrder = Guid.NewGuid().ToString(),
                 Status = "Новая" 
             });
             if (!viewModel.CheckRun())
