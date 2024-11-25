@@ -1,12 +1,17 @@
 ﻿using ManageOrders.Models;
 using ManageOrders.Utility;
+using System;
 using System.Text;
+using System.Windows;
 
 namespace ManageOrders.ViewModels
 {
-    public class ExecuteOrderVM : BaseOrderVM
+    /// <summary>
+    /// Передать на выполнение
+    /// </summary>
+    public class ExecuteStateOrderVM : BaseOrderVM
     {
-        public ExecuteOrderVM(OrderModel order) : base(order)
+        public ExecuteStateOrderVM(OrderModel order, ApiService apiService) : base(order, apiService)
         {
         }
 
@@ -22,19 +27,33 @@ namespace ManageOrders.ViewModels
             enabledCancelReason = false;
         }
 
-        public override void ActionOrder()
+        public override async void ActionOrder()
         {
-            // Отослать на сервер
-            ServiceDB serviceDB = new ServiceDB(Config.pathToDB);
-            NewOrder.Status = "Передано на выполнение";
-            serviceDB.EditOrder(NewOrder);
+            CurrentOrder.Status = "Передано на выполнение";
+
+            if (!CheckRunAction(out string msg))
+            {
+                MessageBox.Show(msg);
+                return;
+            }
+
+            try
+            {
+                await apiService.UpdateStateOrderAsync(CurrentOrder);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сервера. Обновление заявок: {ex.Message}");
+                return;
+            }
+
             ActionComplete = true;
             ClosingWindow?.Invoke();
         }
 
         public override bool CheckRun()
         {
-            return NewOrder?.Status == "Новая";
+            return CurrentOrder?.Status == "Новая";
         }
 
         protected override bool CheckRunAction(out string msg)
@@ -42,7 +61,7 @@ namespace ManageOrders.ViewModels
             StringBuilder sb = new StringBuilder();
             bool check = true;
             
-            if (!NewOrder.CheckStatus())
+            if (!CurrentOrder.CheckStatus())
             {
                 check = false;
                 sb.AppendLine("Поле <Статус> содержит неизвестный статус.");

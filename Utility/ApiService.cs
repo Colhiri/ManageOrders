@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ManageOrders.Utility
@@ -14,7 +11,7 @@ namespace ManageOrders.Utility
     {
         private readonly HttpClient httpClient;
 
-        public ApiService() 
+        public ApiService()
         {
             var handler = new HttpClientHandler();
             handler.ClientCertificateOptions = ClientCertificateOption.Manual;
@@ -24,36 +21,63 @@ namespace ManageOrders.Utility
                     return true;
                 };
             httpClient = new HttpClient(handler)
-             {
-                 BaseAddress = new Uri("https://localhost:7124"),
-
-             };
+            {
+                BaseAddress = new Uri(Config.apiUrl),
+            };
         }
 
-        public async Task<List<OrderModel>> GetOrders()
+        /// <summary>
+        /// Получить все заявки
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<OrderModel>> GetOrdersAsync()
         {
-            HttpResponseMessage response = await httpClient.GetAsync("api/orders");
-            response.EnsureSuccessStatusCode();
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<OrderModel>>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            return await httpClient.GetFromJsonAsync<List<OrderModel>>("api/orders");
         }
 
-        // public async Task CreateOrder(OrderModel order)
-        // {
-        //     
-        // }
-        // 
-        // public Task<OrderModel> EditOrder(OrderModel order)
-        // {
-        //     
-        // }
-        // 
-        // public Task DeleteOrder(string idOrder)
-        // {
-        // 
-        // }
+        /// <summary>
+        /// Создать заявку
+        /// </summary>
+        /// <param name="order">Новая заявка</param>
+        /// <returns></returns>
+        public async Task<OrderModel> CreateOrderAsync(OrderModel order)
+        {
+            var response = await httpClient.PostAsJsonAsync("api/orders", order);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<OrderModel>();
+        }
 
+        /// <summary>
+        /// Обновить статус заявки на "Передано на исполнение"
+        /// </summary>
+        /// <param name="order">Заявка</param>
+        /// <returns></returns>
+        public async Task UpdateStateOrderAsync(OrderModel order)
+        {
+            var response = await httpClient.PutAsJsonAsync($"api/orders/{order.IdOrder}/status", order);
+            response.EnsureSuccessStatusCode();
+        }
 
+        /// <summary>
+        /// Редактировать заявку
+        /// </summary>
+        /// <param name="order">Заявка</param>
+        /// <returns></returns>
+        public async Task EditOrderAsync(OrderModel order)
+        {
+            var response = await httpClient.PutAsJsonAsync($"api/orders/{order.IdOrder}", order);
+            response.EnsureSuccessStatusCode();
+        }
 
+        /// <summary>
+        /// Удалить заявку
+        /// </summary>
+        /// <param name="idOrder">Идентификатор заявки</param>
+        /// <returns></returns>
+        public async Task DeleteOrderAsync(int idOrder)
+        {
+            var response = await httpClient.DeleteAsync($"api/orders/{idOrder}");
+            response.EnsureSuccessStatusCode();
+        }
     }
 }

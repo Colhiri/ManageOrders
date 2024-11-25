@@ -1,7 +1,17 @@
-﻿namespace ManageOrders.Utility
+﻿using System.Configuration;
+
+namespace ManageOrders.Utility
 {
+    /// <summary>
+    /// Конфиг для программы
+    /// </summary>
     public static class Config
     {
-        public static string pathToDB = "C:\\Users\\MSI GP66\\Desktop\\OFFERS\\TEST\\OrdersDatabase.sqlite";
+        public static readonly string apiUrl;
+
+        static Config()
+        {
+            apiUrl = ConfigurationManager.ConnectionStrings["BaseUrl"].ConnectionString;
+        }
     }
 }

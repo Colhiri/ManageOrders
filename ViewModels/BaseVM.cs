@@ -2,6 +2,9 @@
 
 namespace ManageOrders.ViewModels
 {
+    /// <summary>
+    /// Базовый класс VM
+    /// </summary>
     public class BaseVM : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;

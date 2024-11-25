@@ -41,6 +41,7 @@
         <StackPanel Grid.Row="1" Grid.Column="1" Margin="10" VerticalAlignment="Top" >
             <Button Content="Создать" Margin="5" Height="40" Command="{Binding CreateOrderCommand}" />
             <Button Content="Фильтр" Margin="5" Height="40" Command="{Binding FilterOrderCommand}" />
+            <Button Content="Сбросить фильтр" Margin="5" Height="40" Command="{Binding ResetFilterOrderCommand}" />
             <Button Content="Исполнение" Margin="5" Height="40" Command="{Binding ExecuteOrderCommand}" />
             <Button Content="Редактировать" Margin="5" Height="40" Command="{Binding EditOrderCommand}" />
             <Button Content="Удалить" Margin="5" Height="40" Command="{Binding DeleteOrderCommand}" />

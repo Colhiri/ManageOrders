@@ -1,20 +1,18 @@
 ﻿using ManageOrders.Models;
 using ManageOrders.Utility;
 using ManageOrders.View;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Net.Http;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace ManageOrders.ViewModels
 {
     public class ManageOrderVM : BaseVM
     {
-        private ServiceDB ServiceDB;
         private ApiService ApiService;
         public ObservableCollection<OrderModel> Orders { get; set; }
         public ICommand CreateOrderCommand { get; set; }
@@ -22,6 +20,7 @@ namespace ManageOrders.ViewModels
         public ICommand ExecuteOrderCommand { get; set; }
         public ICommand EditOrderCommand { get; set; }
         public ICommand DeleteOrderCommand { get; set; }
+        public ICommand ResetFilterOrderCommand { get; set; }
 
         private OrderModel _selectedOrder;
         public OrderModel SelectedOrder
@@ -35,7 +34,6 @@ namespace ManageOrders.ViewModels
 
         public ManageOrderVM()
         {
-            ServiceDB = new ServiceDB(Config.pathToDB);
             ApiService = new ApiService();
 
             Orders = new ObservableCollection<OrderModel>();
@@ -43,6 +41,7 @@ namespace ManageOrders.ViewModels
 
             CreateOrderCommand = new RelayCommand(CreateOrder);
             FilterOrderCommand = new RelayCommand(FilterOrders);
+            ResetFilterOrderCommand = new RelayCommand(ResetFilterOrders);
             ExecuteOrderCommand = new RelayCommand(ExecuteOrder);
             EditOrderCommand = new RelayCommand(EditOrder);
             DeleteOrderCommand = new RelayCommand(DeleteOrder);
@@ -55,13 +54,20 @@ namespace ManageOrders.ViewModels
         {
             Orders.Clear();
 
-            List<OrderModel> orders = await ApiService.GetOrders();
-
-            foreach (OrderModel order in orders)// ServiceDB.GetOrders())
+            try
             {
-                Orders.Add(order);
+                List<OrderModel> orders = await ApiService.GetOrdersAsync();
+
+                foreach (OrderModel order in orders)
+                {
+                    Orders.Add(order);
+                }
+                OnPropertyChanged(nameof(Orders));
             }
-            OnPropertyChanged();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки заявок: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -69,10 +75,12 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void CreateOrder()
         {
-            CreateNewOrderVM viewModel = new CreateNewOrderVM(new OrderModel() 
-            { 
-                Status = "Новая" 
-            });
+            OrderModel newOrder = new OrderModel()
+            {
+                Status = "Новая",
+                PickupTime = DateTime.Now,
+            };
+            CreateNewOrderVM viewModel = new CreateNewOrderVM(newOrder, ApiService);
             if (!viewModel.CheckRun())
             {
                 return;
@@ -81,10 +89,12 @@ namespace ManageOrders.ViewModels
             viewModel.ClosingWindow += view.Close;
             view.DataContext = viewModel;
             view.ShowDialog();
+
             if (viewModel.ActionComplete)
             {
-                Orders.Add(viewModel.NewOrder);
-                OnPropertyChanged();
+                // Заменяем на ID с базы
+                Orders.Add(viewModel.CurrentOrder);
+                OnPropertyChanged(nameof(Orders));
             }
         }
 
@@ -93,7 +103,23 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void FilterOrders()
         {
+            string input = Interaction.InputBox(
+                "Введите текст для фильтра", // Текст над полем ввода 
+                "Фильтрация заявок" // Название окна
+                ).ToLower();
 
+            if (string.IsNullOrEmpty(input)) { return; }
+
+            Orders = new ObservableCollection<OrderModel>(Orders.Where(order => order.StrRepresent().ToLower().Contains(input)));
+            OnPropertyChanged(nameof(Orders));
+        }
+
+        /// <summary>
+        /// Сбросить фильтр
+        /// </summary>
+        private void ResetFilterOrders()
+        {
+            LoadOrders();
         }
 
         /// <summary>
@@ -101,7 +127,7 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void ExecuteOrder()
         {
-            ExecuteOrderVM viewModel = new ExecuteOrderVM((OrderModel)SelectedOrder?.Clone());
+            ExecuteStateOrderVM viewModel = new ExecuteStateOrderVM((OrderModel)SelectedOrder?.Clone(), ApiService);
             if (!viewModel.CheckRun())
             {
                 MessageBox.Show("Выберите заявку со статусом <Новая>!");
@@ -114,8 +140,8 @@ namespace ManageOrders.ViewModels
 
             if (viewModel.ActionComplete)
             {
-                Orders[Orders.IndexOf(SelectedOrder)] = viewModel.NewOrder;
-                OnPropertyChanged();
+                Orders[Orders.IndexOf(SelectedOrder)] = viewModel.CurrentOrder;
+                OnPropertyChanged(nameof(Orders));
             }
         }
 
@@ -124,7 +150,7 @@ namespace ManageOrders.ViewModels
         /// </summary>
         private void EditOrder()
         {
-            BaseOrderVM viewModel = new EditOrderVM((OrderModel)SelectedOrder?.Clone());
+            BaseOrderVM viewModel = new EditOrderVM((OrderModel)SelectedOrder?.Clone(), ApiService);
             if (!viewModel.CheckRun())
             {
                 MessageBox.Show("Выберите заявку!");
@@ -137,15 +163,15 @@ namespace ManageOrders.ViewModels
 
             if (viewModel.ActionComplete)
             {
-                Orders[Orders.IndexOf(SelectedOrder)] = viewModel.NewOrder;
-                OnPropertyChanged();
+                Orders[Orders.IndexOf(SelectedOrder)] = viewModel.CurrentOrder;
+                OnPropertyChanged(nameof(Orders));
             }
         }
 
         /// <summary>
         /// Удалить заявку
         /// </summary>
-        private void DeleteOrder()
+        private async void DeleteOrder()
         {
             if (SelectedOrder == null)
             {
@@ -159,16 +185,22 @@ namespace ManageOrders.ViewModels
             MessageBoxButton.YesNo,
             MessageBoxImage.Question);
 
-            if (result == MessageBoxResult.Yes)
+            try
             {
-                ServiceDB.DeleteOrder(SelectedOrder.IdOrder);
-
-                Orders.Remove(SelectedOrder);
-
-                SelectedOrder = null;
-
-                OnPropertyChanged();
+                if (result == MessageBoxResult.Yes)
+                {
+                    await ApiService.DeleteOrderAsync(SelectedOrder.IdOrder);
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки заявок: {ex.Message}");
+                return;
+            }
+
+            Orders.Remove(SelectedOrder);
+            SelectedOrder = null;
+            OnPropertyChanged(nameof(Orders));
         }
     }
 }

@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:System;assembly=mscorlib"
-        xmlns:viewmodels="clr-namespace:ManageOrders.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:BaseOrderVM}"
+        xmlns:viewmodels="clr-namespace:ManageOrders.ViewModels" 
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodels:BaseOrderVM}"
+        mc:Ignorable="d" 
         Title="{Binding Title}" Height="450" Width="800">
 
     <Grid Margin="10">
@@ -27,31 +28,31 @@
 
             <!-- Имя клиента -->
             <TextBlock Text="Имя клиента" Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
-            <TextBox Grid.Row="0" Grid.Column="1" Margin="5" Text="{Binding NewOrder.NameClient}" IsEnabled="{Binding enabledNameClient}" />
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="5" Text="{Binding CurrentOrder.NameClient}" IsEnabled="{Binding enabledNameClient}" />
 
             <!-- Имя исполнителя -->
             <TextBlock Text="Имя исполнителя" Grid.Row="1" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
-            <TextBox Grid.Row="1" Grid.Column="1" Margin="5" Text="{Binding NewOrder.NameExecutor}" IsEnabled="{Binding enabledNameExecutor}" />
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="5" Text="{Binding CurrentOrder.NameExecutor}" IsEnabled="{Binding enabledNameExecutor}" />
 
             <!-- Адрес клиента -->
             <TextBlock Text="Адрес клиента" Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
-            <TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding NewOrder.PickupAddress}" IsEnabled="{Binding enabledPickupAddress}" />
+            <TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding CurrentOrder.PickupAddress}" IsEnabled="{Binding enabledPickupAddress}" />
 
             <!-- Адрес доставки -->
             <TextBlock Text="Адрес доставки" Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
-            <TextBox Grid.Row="3" Grid.Column="1" Margin="5" Text="{Binding NewOrder.DeliveryAddress}" IsEnabled="{Binding enabledDeliveryAddress}" />
+            <TextBox Grid.Row="3" Grid.Column="1" Margin="5" Text="{Binding CurrentOrder.DeliveryAddress}" IsEnabled="{Binding enabledDeliveryAddress}" />
 
             <!-- Время передачи посылки -->
             <TextBlock Text="Время передачи посылки" Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center"  />
-            <xctk:DateTimePicker  Grid.Row="4" Grid.Column="1" Margin="5" Value="{Binding NewOrder.PickupTime}" Format="Custom" FormatString="dd.MM.yyyy HH:mm"  IsEnabled="{Binding enabledPickupTime}" />
+            <xctk:DateTimePicker  Grid.Row="4" Grid.Column="1" Margin="5" Value="{Binding CurrentOrder.PickupTime}" Format="Custom" FormatString="dd.MM.yyyy HH:mm"  IsEnabled="{Binding enabledPickupTime}" />
             
             <!-- Статус -->
             <TextBlock Text="Статус" Grid.Row="5" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
-            <ComboBox Grid.Row="5" Grid.Column="1" Margin="5" ItemsSource="{Binding StatusOrder}" SelectedItem="{Binding NewOrder.Status}" IsEnabled="{Binding enabledStatus}" />
+            <ComboBox Grid.Row="5" Grid.Column="1" Margin="5" ItemsSource="{Binding StatusOrder}" SelectedItem="{Binding CurrentOrder.Status}" IsEnabled="{Binding enabledStatus}" />
 
             <!-- Причина отмены -->
             <TextBlock Text="Причина отмены" Grid.Row="6" Grid.Column="0" Margin="5" VerticalAlignment="Center" />
-            <TextBox Grid.Row="6" Grid.Column="1" Margin="5" Text="{Binding NewOrder.CancelReason}" IsEnabled="{Binding enabledCancelReason}" />
+            <TextBox Grid.Row="6" Grid.Column="1" Margin="5" Text="{Binding CurrentOrder.CancelReason}" IsEnabled="{Binding enabledCancelReason}" />
         </Grid>
 
         <!-- Кнопки -->

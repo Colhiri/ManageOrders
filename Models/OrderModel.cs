@@ -89,9 +89,22 @@ namespace ManageOrders.Models
             }
         }
 
+        /// <summary>
+        /// Клонирование для создание поверхностной копии заявки
+        /// </summary>
+        /// <returns>Копия заявки</returns>
         public object Clone()
         {
             return this.MemberwiseClone();
+        }
+
+        /// <summary>
+        /// Строковое представление класса
+        /// </summary>
+        /// <returns>Строка со всеми полями</returns>
+        public string StrRepresent()
+        {
+            return $"{IdOrder} {NameClient ?? ""} {NameExecutor ?? ""} {PickupAddress ?? ""} {PickupTime} {DeliveryAddress ?? ""} {PickupTime} {Status ?? ""} {CancelReason ?? ""}";
         }
     }
 }
